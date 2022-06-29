@@ -85,8 +85,9 @@ jusqu'à atteindre le maître du donjon ou être vaincu, auquel cas, il finis au
 
 #### Systémes de jeu
 
+* Contrôles avec Joystick | ZQSD/Touches directionelles, une touche d'attaque, une touche d'action/artefact
 * Génération procédurale de labyrinth avec des salles de différentes formes et différents challenges (monstres et/ou puzzle)
-* Système de classe (via le hub le joueur peux choisir son arme, ce qui change sa classe et sa compétence active et ses passifs)
+* Système d'armes (via le hub le joueur peux choisir son arme, ce qui change son attaque pour son aventure)
 * Système de camera qui s'adapte à la room (si taille de 1*1) ou suis le joueur et se clamp sur les bords (si taille > 1*1)
 * IA pour différents type d'ennemis (à définir)
 * IA pour les compagnons animaux (à définir)
