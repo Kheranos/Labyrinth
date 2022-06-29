@@ -21,6 +21,10 @@ Labyrinth
 Affrontez les épreuves du donjon labyrinthique et tentez de trouver la sortie !
 *(concept provisoire, évoluera pendant le développent)*
 
+#### Inspiration
+
+Legend of Zelda : Link's Awakening
+
 #### Genres
 
 Action, Puzzle, Rogue-Like
@@ -28,9 +32,9 @@ Action, Puzzle, Rogue-Like
 
 #### Présentation du jeu
 
-Le joueur incarne un aventurier se réveille dans une salle d'un donjon sans indications, il devra parcourir les salles les unes après les autres jusqu'à trouver la sortie.
-Boss, monstres et énigmes attendent l'aventurier dans son exploration.
-Pour l'aider l'aventurier pourra trouver différents artefacts aux innombrable effets ou compter sur l'aide des animaux qu'il pourra secourir pendant son exploration.
+Le joueur incarne un aventurier s'attaque à un donjon labyrinthique pour aller libérer les animaux enlevés, il devra parcourir les salles les unes après les autres jusqu'à trouver le maître du donjon et mettre fin à ses agissements.
+Monstres et énigmes attendent l'aventurier pour le ralentir dans sa quête.
+Pour s'aider l'aventurier pourra trouver différents artefacts aux innombrables effets ou compter sur l'aide des animaux qu'il aura secouru pendant son exploration.
 *(idée de base, évoluera pendant le développent)*
 
 #### Expérience recherchée
@@ -70,20 +74,20 @@ puis pour Décembre 2022 atteindre la beta.
 
 Objectif : livraison 2nd trimestre 2023.
 
-# WIP
+#### Game loop
 
-#### Core Loops
+Le joueur entre dans le labyrinthe, 
+parcours un étage (caractérisé par différentes salles, changeant de pattern et contenu à chaque nouvelles exploration)
+trouve des artefact ou un animal pour l'aider
+poursuis à l'étage suivant,
+jusqu'à atteindre le maître du donjon ou être vaincu, auquel cas, il finis au hub de départ et dépense les trésors trouvé en route pour
+être plus fort pour la prochaine exploration, ainsi jusqu'à pouvoir vaincre le maître du donjon.
 
-How do game objects and the player’s actions form loops? Why is this engaging? How does this support
-player goals? What emergent results do you expect/hope to see? If F2P, where are the monetization points?
+#### Systémes de jeu
 
-#### Objectives and Progression
-
-How does the player move through the game, literally and figuratively, from tutorial to end? What are their
-short-term and long-term goals (explicit or implicit)? How do these support the game concept, style, and
-player-fantasy?
-
-#### Game Systems
-
-What systems are needed to make this game? Which ones are internal (simulation, etc.) and which does the
-player interact with?
+* Génération procédurale de labyrinth avec des salles de différentes formes et différents challenges (monstres et/ou puzzle)
+* Système de classe (via le hub le joueur peux choisir son arme, ce qui change sa classe et sa compétence active et ses passifs)
+* Système de camera qui s'adapte à la room (si taille de 1*1) ou suis le joueur et se clamp sur les bords (si taille > 1*1)
+* IA pour différents type d'ennemis (à définir)
+* IA pour les compagnons animaux (à définir)
+* Système d'artefacts pouvant avoir des effets cachés si réunis.
