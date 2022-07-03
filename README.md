@@ -23,7 +23,9 @@ Affrontez les épreuves du donjon labyrinthique et tentez de trouver la sortie !
 
 #### Inspiration
 
-Legend of Zelda : Link's Awakening
+The Legend of Zelda: Link's Awakening
+Enter the Gungeon
+The Binding of Isaac
 
 #### Genres
 
