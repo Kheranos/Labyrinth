@@ -1,6 +1,3 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -20,7 +17,12 @@ public class TwinStickMovement : MonoBehaviour
     private Vector2 movement;
     private Vector2 aim;
 
-    private bool jumping;
+    private Vector3 playerVelocity;
+    private bool groundedPlayer;
+    private float gravityValue = -9.81f;
+
+    private bool hasJumped = false;
+    private float jumpMultiplicator = 2f;
 
     private PlayerControls playerControls;
     private PlayerInput playerInput;
@@ -46,6 +48,7 @@ public class TwinStickMovement : MonoBehaviour
     {
         HandleInput();
         HandleMovement();
+        HandleGravity();
         HandleRotation();
     }
 
@@ -57,18 +60,26 @@ public class TwinStickMovement : MonoBehaviour
 
     private void HandleMovement()
     {
-        Vector3 move = new Vector3(movement.x, 0, movement.y);
-        controller.Move(move * Time.deltaTime * playerSpeed);
+        Vector3 move = new(movement.x, 0, movement.y);
+        controller.Move(playerSpeed * Time.deltaTime * move);
+    }
 
-        Vector3 jump = Vector3.zero;
-        if (shouldJump)
-        {
-            shouldJump = false;
-            jump.y += Mathf.Sqrt(playerJumpHeight * -3.0f * Physics.gravity.y);
-        }
+    private void HandleGravity()
+    {
+        //Fix characterController.isGrounded detection
+        controller.Move(-0.1f * Time.deltaTime * Vector3.up);
 
-        jump += Physics.gravity;
-        controller.Move(jump * Time.deltaTime);
+        groundedPlayer = controller.isGrounded;
+
+        if (groundedPlayer)
+            hasJumped = false;
+
+        if (groundedPlayer && playerVelocity.y < 0)
+            playerVelocity.y = 0f;
+
+        playerVelocity.y += gravityValue * 3f * Time.deltaTime;
+
+        controller.Move(playerVelocity * Time.deltaTime);
     }
 
     private void HandleRotation()
@@ -89,7 +100,7 @@ public class TwinStickMovement : MonoBehaviour
         else
         {
             Ray ray = Camera.main.ScreenPointToRay(aim);
-            Plane playerPlane = new Plane(Vector3.up, transform.position);
+            Plane playerPlane = new(Vector3.up, transform.position);
             if (playerPlane.Raycast(ray, out float hitDistance))
                 LookAt(ray.GetPoint(hitDistance));
         }
@@ -97,20 +108,25 @@ public class TwinStickMovement : MonoBehaviour
 
     private void LookAt(Vector3 lookPoint)
     {
-        Vector3 heightCorrectedPoint = new Vector3(lookPoint.x, transform.position.y, lookPoint.z);
+        Vector3 heightCorrectedPoint = new(lookPoint.x, transform.position.y, lookPoint.z);
         transform.LookAt(heightCorrectedPoint);
     }
 
-    private bool shouldJump = false;
-
-    public void Jump()
+    #region PlayerInput message handlers
+#pragma warning disable IDE0051 // Supprimer les membres privés non utilisés
+    private void OnJump()
     {
-        if (controller.isGrounded)
-            shouldJump = true;
+        if (!hasJumped)
+        {
+            hasJumped = true;
+            playerVelocity.y = Mathf.Sqrt(playerJumpHeight * -3.0f * gravityValue * jumpMultiplicator);
+        }
     }
 
     public void OnDeviceChange(PlayerInput pi)
     {
         isGamepad = pi.currentControlScheme.Equals("Gamepad");
     }
+#pragma warning restore IDE0051 // Supprimer les membres privés non utilisés
+    #endregion PlayerInput message handlers
 }
