@@ -1,3 +1,5 @@
+using System;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -13,12 +15,13 @@ public class TwinStickMovement : MonoBehaviour
     [SerializeField] private bool isGamepad;
 
     private CharacterController controller;
+    private Animator animator;
 
     private Vector2 movement;
     private Vector2 aim;
 
     private Vector3 playerVelocity;
-    private bool groundedPlayer;
+    [SerializeField] private bool groundedPlayer;
     private float gravityValue = -9.81f;
 
     private bool hasJumped = false;
@@ -27,9 +30,13 @@ public class TwinStickMovement : MonoBehaviour
     private PlayerControls playerControls;
     private PlayerInput playerInput;
 
+    public Vector3 startPosition;
+
     private void Awake()
     {
+        startPosition = transform.localPosition;
         controller = GetComponent<CharacterController>();
+        animator = GetComponent<Animator>();
         playerControls = new PlayerControls();
         playerInput = GetComponent<PlayerInput>();
     }
@@ -46,11 +53,31 @@ public class TwinStickMovement : MonoBehaviour
 
     private void Update()
     {
+        if (transform.position.y < -2)
+        {
+            transform.localPosition = startPosition;
+            return;
+        }
+
         HandleInput();
         HandleMovement();
         HandleGravity();
         HandleRotation();
+        HandleAttack();
     }
+
+    private void HandleAttack()
+    {
+        if (swordColliderDuration > 0f)
+        {
+            swordColliderDuration -= Time.deltaTime;
+        }
+        else if (swordCollider.enabled)
+        {
+            swordCollider.enabled = false;
+        }
+    }
+
 
     private void HandleInput()
     {
@@ -58,10 +85,20 @@ public class TwinStickMovement : MonoBehaviour
         aim = playerControls.Controls.Aim.ReadValue<Vector2>();
     }
 
+    private Vector3 move;
+
     private void HandleMovement()
     {
-        Vector3 move = new(movement.x, 0, movement.y);
+        jumpTimer -= Time.deltaTime;
+
+        move = new(movement.x, 0, movement.y);
         controller.Move(playerSpeed * Time.deltaTime * move);
+
+        float angle = Vector3.SignedAngle(transform.forward, move, Vector3.up);
+
+        //Multiply by magnitude to avoid movement animation when there is none
+        animator.SetFloat("Forward", Mathf.Cos(angle * Mathf.Deg2Rad) * move.magnitude);
+        animator.SetFloat("Right", Mathf.Sin(angle * Mathf.Deg2Rad) * move.magnitude);
     }
 
     private void HandleGravity()
@@ -113,14 +150,37 @@ public class TwinStickMovement : MonoBehaviour
     }
 
     #region PlayerInput message handlers
+#pragma warning disable IDE0079 // Retirer la suppression inutile
 #pragma warning disable IDE0051 // Supprimer les membres privés non utilisés
+
+    private float jumpDuration = 0.3f;
+    private float jumpTimer = 0f;
     private void OnJump()
     {
-        if (!hasJumped)
+        if (!hasJumped && jumpTimer <= 0f)
         {
             hasJumped = true;
+            jumpTimer = jumpDuration;
+            animator.SetTrigger("Jump");
             playerVelocity.y = Mathf.Sqrt(playerJumpHeight * -3.0f * gravityValue * jumpMultiplicator);
         }
+    }
+
+    private float attackAnimDuration = 0.2f;
+    private float swordColliderDuration = 0f;
+    [SerializeField] private Collider swordCollider;
+
+    private void OnAttack()
+    {
+        animator.SetTrigger("Attack");
+        swordColliderDuration = attackAnimDuration;
+        StartCoroutine(DelayedSwordActivation());
+    }
+
+    private IEnumerator DelayedSwordActivation()
+    {
+        yield return new WaitForSeconds(0.04f);
+        swordCollider.enabled = true;
     }
 
     public void OnDeviceChange(PlayerInput pi)
@@ -128,5 +188,6 @@ public class TwinStickMovement : MonoBehaviour
         isGamepad = pi.currentControlScheme.Equals("Gamepad");
     }
 #pragma warning restore IDE0051 // Supprimer les membres privés non utilisés
+#pragma warning restore IDE0079 // Retirer la suppression inutile
     #endregion PlayerInput message handlers
 }
